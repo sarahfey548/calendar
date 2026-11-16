@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; color: #000; }
+  body { font-family: -apple-system, Roboto, "Segoe UI", Arial, sans-serif; padding: 16px; font-size: 18px; line-height: 1.3; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 12px; gap: 12px; }
+  #clock { font-size: 56px; font-weight: 700; line-height: 1; }
+  #date { font-size: 22px; font-weight: 600; margin-top: 4px; }
+  #weather { text-align: right; }
+  #wnow { font-size: 34px; font-weight: 700; }
+  #wdesc { font-size: 17px; }
+  #wdays { display: flex; gap: 8px; margin-bottom: 14px; }
+  .wd { flex: 1; border: 2px solid #000; border-radius: 8px; padding: 6px; text-align: center; font-size: 15px; }
+  .wd b { display: block; font-size: 16px; }
+  main { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 900px) and (orientation: landscape) { main { grid-template-columns: 2fr 1fr; } }
+  h2 { font-size: 20px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #000; margin-bottom: 6px; padding-bottom: 2px; }
+  .day { margin-bottom: 12px; }
+  .dayname { font-weight: 700; font-size: 19px; background: #000; color: #fff; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+  .ev { display: flex; gap: 10px; padding: 4px 0; border-bottom: 1px solid #999; }
+  .ev .t { min-width: 92px; font-weight: 700; font-size: 16px; padding-top: 2px; }
+  .ev .n { font-size: 19px; }
+  .ev .l { font-size: 14px; }
+  .ev.past { opacity: .45; }
+  .empty { font-style: italic; font-size: 16px; padding: 4px 0; }
+  .task { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #999; cursor: pointer; }
+  .box { width: 28px; height: 28px; border: 3px solid #000; border-radius: 4px; flex: none; }
+  .task.done .box { background: #000; }
+  .task.done .tt { text-decoration: line-through; }
+  .tt { font-size: 19px; }
+  .due { font-size: 14px; font-weight: 700; }
+  footer { margin-top: 12px; font-size: 13px; text-align: right; }
+  #err { border: 3px solid #000; padding: 10px; margin-bottom: 12px; font-weight: 700; display: none; }
+</style>
+</head>
+<body>
+<header>
+  <div><div id="clock">--:--</div><div id="date"></div></div>
+  <div id="weather"><div id="wnow"></div><div id="wdesc"></div></div>
+</header>
+<div id="err"></div>
+<div id="wdays"></div>
+<main>
+  <section><h2>Calendar</h2><div id="events"><div class="empty">Loading…</div></div></section>
+  <section><h2>To do</h2><div id="tasks"></div></section>
+</main>
+<footer id="updated"></footer>
+
+<script>
+// Paste your Apps Script web app URL (ends in /exec) here:
+var API_URL = 'https://script.google.com/macros/s/AKfycbwj8aaaV8bC6fQwoqQC5RlBgTOkTLHvdVI0mp8-GLBITQbjHuw4GM3zDiNqLp930PA/exec';
+
+// Weather location (Avondale, Chicago). Change if you move the display.
+var LAT = 41.939, LON = -87.711;
+var REFRESH_MIN = 5;
+
+var KEY = new URLSearchParams(location.search).get('key') || '';
+var data = null;
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function fmtTime(d) { return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(' AM', 'a').replace(' PM', 'p'); }
+function dayKey(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+function showErr(msg) { var e = $('err'); e.textContent = msg; e.style.display = msg ? 'block' : 'none'; }
+
+function tickClock() {
+  var now = new Date();
+  $('clock').textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  $('date').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function loadData(query) {
+  if (!KEY) { showErr('Missing ?key= in the page URL.'); return Promise.resolve(); }
+  var url = API_URL + '?key=' + encodeURIComponent(KEY) + (query || '');
+  return fetch(url).then(function (r) { return r.json(); }).then(function (d) {
+    if (d.error) throw new Error(d.error);
+    data = d; showErr(''); render();
+  }).catch(function (e) { showErr('Calendar error: ' + e.message); });
+}
+
+function render() {
+  var now = new Date();
+  var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var html = '';
+  for (var i = 0; i < 7; i++) {
+    var day = new Date(today.getTime() + i * 86400000);
+    var next = new Date(today.getTime() + (i + 1) * 86400000);
+    var label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : day.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+    var evs = data.events.filter(function (ev) {
+      var s = new Date(ev.start), e = new Date(ev.end);
+      return s < next && e > day;
+    });
+    if (i > 1 && !evs.length) continue;
+    html += '<div class="day"><div class="dayname">' + label + '</div>';
+    if (!evs.length) html += '<div class="empty">Nothing scheduled</div>';
+    evs.forEach(function (ev) {
+      var s = new Date(ev.start), e = new Date(ev.end);
+      var t = ev.allDay ? 'All day' : (s < day ? 'cont.' : fmtTime(s));
+      var past = !ev.allDay && i === 0 && e < now;
+      html += '<div class="ev' + (past ? ' past' : '') + '"><div class="t">' + t + '</div><div><div class="n">' + esc(ev.title) + '</div>' +
+        (ev.location ? '<div class="l">' + esc(ev.location) + '</div>' : '') + '</div></div>';
+    });
+    html += '</div>';
+  }
+  $('events').innerHTML = html;
+
+  var th = '';
+  if (!data.tasks.length) th = '<div class="empty">All clear!</div>';
+  data.tasks.forEach(function (t) {
+    var due = '';
+    if (t.due) {
+      var d = new Date(t.due.slice(0, 10) + 'T12:00:00');
+      due = d < today ? 'Overdue' : dayKey(d) === dayKey(today) ? 'Due today' : 'Due ' + d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+    th += '<div class="task" data-list="' + esc(t.list) + '" data-task="' + esc(t.id) + '"><div class="box"></div><div><div class="tt">' + esc(t.title) + '</div>' +
+      (due ? '<div class="due">' + due + '</div>' : '') + '</div></div>';
+  });
+  $('tasks').innerHTML = th;
+  $('updated').textContent = 'Updated ' + fmtTime(new Date(data.updated));
+}
+
+$('tasks').addEventListener('click', function (e) {
+  var el = e.target.closest('.task');
+  if (!el || el.classList.contains('done')) return;
+  el.classList.add('done');
+  loadData('&action=complete&list=' + encodeURIComponent(el.dataset.list) + '&task=' + encodeURIComponent(el.dataset.task));
+});
+
+var WMO = { 0: 'Clear', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Cloudy', 45: 'Fog', 48: 'Fog', 51: 'Drizzle', 53: 'Drizzle', 55: 'Drizzle',
+  56: 'Freezing drizzle', 57: 'Freezing drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Freezing rain', 67: 'Freezing rain',
+  71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains', 80: 'Showers', 81: 'Showers', 82: 'Heavy showers',
+  85: 'Snow showers', 86: 'Snow showers', 95: 'Thunderstorms', 96: 'Thunderstorms', 99: 'Thunderstorms' };
+
+function loadWeather() {
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + LAT + '&longitude=' + LON +
+    '&current=temperature_2m,apparent_temperature,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max' +
+    '&temperature_unit=fahrenheit&timezone=auto&forecast_days=4';
+  fetch(url).then(function (r) { return r.json(); }).then(function (w) {
+    $('wnow').textContent = Math.round(w.current.temperature_2m) + '°F';
+    $('wdesc').textContent = (WMO[w.current.weather_code] || '') + ' · feels ' + Math.round(w.current.apparent_temperature) + '°';
+    var h = '';
+    for (var i = 0; i < w.daily.time.length; i++) {
+      var d = new Date(w.daily.time[i] + 'T12:00:00');
+      h += '<div class="wd"><b>' + (i === 0 ? 'Today' : d.toLocaleDateString([], { weekday: 'short' })) + '</b>' +
+        Math.round(w.daily.temperature_2m_max[i]) + '° / ' + Math.round(w.daily.temperature_2m_min[i]) + '°<br>' +
+        (WMO[w.daily.weather_code[i]] || '') + '<br>' + (w.daily.precipitation_probability_max[i] || 0) + '% precip</div>';
+    }
+    $('wdays').innerHTML = h;
+  }).catch(function () {});
+}
+
+tickClock();
+setInterval(tickClock, 15000);
+loadData();
+loadWeather();
+setInterval(loadData, REFRESH_MIN * 60000);
+setInterval(loadWeather, 30 * 60000);
+setInterval(function () { if (data) render(); }, 60000);
+</script>
+</body>
+</html>
