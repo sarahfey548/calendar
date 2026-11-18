@@ -143,17 +143,26 @@
   .todo-head h2 { font-family: Fraunces, Georgia, serif; font-style: italic; font-size: 1.05rem; font-weight: 500; }
   .todo-head h2 small { font-family: Nunito, sans-serif; font-style: normal; font-size: .7rem; font-weight: 700;
                         color: #777; margin-left: .3rem; }
-  .plus { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 0; background: #1a1a1a; color: #fff;
-          font-size: 1.1rem; line-height: 1.6rem; font-weight: 700; }
-  .todos { min-height: 0; overflow: hidden; max-height: 6.4rem; }
-  .todo { display: flex; align-items: center; gap: .55rem; padding: .2rem 0; font-size: .88rem; font-weight: 600; }
+  .plus { width: 1.9rem; height: 1.9rem; border-radius: 50%; border: 0; background: #1a1a1a; color: #fff;
+          font-size: 1.2rem; line-height: 1.9rem; font-weight: 700; display: inline-grid; place-items: center; }
+  .plus.alt { background: #fff; color: #1a1a1a; border: 2px solid #1a1a1a; }
+  .plus svg { width: 1.05rem; height: 1.05rem; }
+  .todo-btns { display: flex; gap: .4rem; }
+  .todos { min-height: 0; overflow-y: auto; max-height: 6.4rem; scrollbar-width: none; }
+  .todos::-webkit-scrollbar { display: none; }
+  .todo { display: flex; align-items: center; gap: .55rem; padding: .3rem 0; font-size: .95rem; font-weight: 600;
+          border-bottom: 1px solid #e2e2e2; }
+  .todo:last-child { border-bottom: 0; }
+  .todo .box { width: 1.25rem; height: 1.25rem; }
+  .todo .box svg { width: .85rem; height: .85rem; }
   .box { flex: 0 0 auto; width: 1.05rem; height: 1.05rem; border: 2px solid #1a1a1a; border-radius: .32rem;
          background: #fff; display: grid; place-items: center; }
   .box svg { width: .75rem; height: .75rem; display: none; }
   .todo.done .box { background: #1a1a1a; }
   .todo.done .box svg { display: block; }
   .todo.done .label { text-decoration: line-through; color: #888; }
-  .label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+  .label { flex: 1; min-width: 0; line-height: 1.3; overflow-wrap: break-word; }
+  .todos { max-height: 5.2rem; }
   .due { font-size: .65rem; font-weight: 700; color: #666; background: #fff; border-radius: 99px; padding: .08rem .45rem; }
   .due.urgent { background: #1a1a1a; color: #fff; }
   .empty { font-family: Fraunces, Georgia, serif; font-style: italic; font-size: .9rem; color: #666; }
@@ -166,17 +175,28 @@
 
   /* ---------- Sideways ---------- */
   @media (orientation: landscape) {
-    body { grid-template-columns: 2.1fr 1fr; grid-template-rows: auto minmax(0, 1fr);
-           grid-template-areas: "cal top" "cal todo"; column-gap: 1.2rem; }
-    .top { flex-direction: column; align-items: stretch; gap: .8rem; }
+    body { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr);
+           grid-template-areas: "cal top" "cal todo"; column-gap: 1.2rem; row-gap: .7rem; }
+    .top { flex-direction: column; align-items: stretch; gap: .55rem; }
     .hello { font-size: .82rem; }
     .hello .iconbtn { margin-left: .25rem; width: 1.4rem; height: 1.4rem; }
-    .date { font-size: 1.85rem; }
-    .date .d1, .date .d3 { display: block; }
-    .date .d2 { display: none; }
-    .wx { padding: .8rem; }
-    .hourly { display: flex; justify-content: space-between; margin-top: .6rem; padding-top: .55rem; border-top: 1px solid #dcdcdc; }
-    .quote.on { display: block; }
+    .date { font-size: 1.45rem; }
+    .date .d1, .date .d2, .date .d3 { display: inline; }
+    .sub { margin-top: .25rem; }
+    .wx { display: flex; align-items: center; gap: .8rem; padding: .45rem .75rem .45rem .5rem; }
+    .wx-main svg { width: 1.9rem; height: 1.9rem; }
+    .wx .temp { font-size: 1.4rem; }
+    .hourly { display: flex; flex: 1; min-width: 0; justify-content: space-around; overflow: hidden;
+              padding-left: .7rem; border-left: 1px solid #dcdcdc; }
+    .h { font-size: .55rem; }
+    .h svg { width: 1.1rem; height: 1.1rem; margin: .08rem auto; }
+    .h b { font-size: .7rem; }
+    .quote.on { display: none; }
+    .top { zoom: var(--hdr, 1); }
+    .todo-wrap { zoom: var(--todo, 1); }
+    body.big { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+    .hourly .h:nth-child(n+4) { display: none; }
+    .todo-wrap { padding: .75rem .9rem .5rem; }
     .todos { max-height: none; flex: 1; }
 
     body.no-todo { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "top" "cal"; }
@@ -214,6 +234,38 @@
   .d-cal.other { background: #e2e2e2; color: #333; }
   .d-notes { margin-top: .75rem; padding-top: .65rem; border-top: 1px solid #e6e6e6; font-size: .82rem; line-height: 1.4;
              white-space: pre-wrap; color: #333; max-height: 13rem; overflow: hidden; }
+
+  /* ---------- Voice / typed capture ---------- */
+  .card.wide { width: min(100%, 34rem); }
+  .listen { text-align: center; padding: .8rem 0 .4rem; }
+  .bigmic { width: 4.6rem; height: 4.6rem; border-radius: 50%; border: 0; background: #1a1a1a; display: inline-grid; place-items: center; }
+  .bigmic svg { width: 2.2rem; height: 2.2rem; }
+  .listen p { font-family: Fraunces, Georgia, serif; font-style: italic; font-size: 1.15rem; margin-top: .6rem; }
+  .listen small { display: block; font-size: .78rem; font-weight: 700; color: #666; margin-top: .25rem; }
+  .btnrow { display: flex; gap: .5rem; justify-content: flex-end; margin-top: .8rem; flex-wrap: wrap; }
+  .btn { font-size: .88rem; font-weight: 800; border-radius: 99px; padding: .4rem 1rem; border: 2px solid #1a1a1a;
+         background: #fff; color: #1a1a1a; }
+  .btn.dark { background: #1a1a1a; color: #fff; }
+  .btn.ghost { border-color: transparent; color: #555; }
+  .btn:disabled { opacity: .4; }
+  textarea.tx { width: 100%; min-height: 6rem; font: inherit; font-size: .95rem; border: 2px solid #1a1a1a; border-radius: .9rem;
+                padding: .5rem .7rem; resize: none; outline: none; }
+  .hint { font-size: .78rem; color: #666; margin-top: .4rem; }
+  .heard { font-family: Fraunces, Georgia, serif; font-style: italic; font-size: .85rem; color: #555; margin-bottom: .55rem; }
+  .note { font-size: .78rem; font-weight: 700; background: #f1f1f1; border-radius: .7rem; padding: .45rem .65rem; margin-bottom: .55rem; }
+  .items { display: flex; flex-direction: column; gap: .45rem; }
+  .item { display: flex; gap: .4rem; align-items: center; }
+  .item input { font-size: .95rem; padding: .35rem .7rem; border-radius: .8rem; }
+  .item select, .e-row select { flex: 0 0 auto; font: inherit; font-size: .82rem; font-weight: 700; border: 2px solid #1a1a1a;
+                 border-radius: 99px; padding: .3rem .4rem; background: #fff; color: #1a1a1a; max-width: 8.5rem; }
+  .x { flex: 0 0 auto; width: 1.8rem; height: 1.8rem; border-radius: 50%; border: 0; background: #f1f1f1;
+       font-size: 1.1rem; font-weight: 800; color: #555; }
+  .addline { align-self: flex-start; margin-top: .2rem; font-size: .82rem; font-weight: 800; background: none; border: 0; color: #555; padding: .2rem 0; }
+  #eTitle { width: 100%; font-size: 1rem; padding: .4rem .8rem; }
+  .todo-head h2 { white-space: nowrap; }
+  .e-row { display: flex; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .e-row label { font-size: .8rem; font-weight: 700; color: #555; }
+  .thinking { text-align: center; font-family: Fraunces, Georgia, serif; font-style: italic; font-size: 1.1rem; padding: 1.4rem 0; }
 
   /* ---------- Night mode ---------- */
   .night { position: fixed; inset: 0; background: #fff; z-index: 40; display: flex; flex-direction: column;
@@ -260,11 +312,9 @@
   </div>
 
   <div class="todo-wrap">
-    <div class="todo-head"><h2 id="todoTitle">To-do</h2><button class="plus" id="plus" aria-label="Add">+</button></div>
-    <form id="addForm" autocomplete="off">
-      <input id="newTask" placeholder="New to-do" maxlength="200">
-      <button type="submit">Add</button>
-    </form>
+    <div class="todo-head"><h2 id="todoTitle">To-do</h2>
+      <div class="todo-btns"><button class="plus alt" id="plus" aria-label="Type a to-do">+</button>
+        <button class="plus" id="mic" aria-label="Say your to-dos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><line x1="12" y1="17.5" x2="12" y2="21"/></svg></button></div></div>
     <div class="todos" id="todos"></div>
   </div>
 
@@ -279,6 +329,22 @@
     <div class="card">
       <div class="card-head"><h2 id="dTitle"></h2><button class="done" id="dClose">Close</button></div>
       <div id="dBody"></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="cap" hidden>
+    <div class="card wide">
+      <div class="card-head"><h2 id="capTitle">New to-dos</h2><button class="done" id="capClose">Cancel</button></div>
+      <div id="capBody"></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="edit" hidden>
+    <div class="card">
+      <div class="card-head"><h2>Edit to-do</h2><button class="done" id="eClose">Cancel</button></div>
+      <input id="eTitle" maxlength="200">
+      <div class="e-row"><label for="eDue">Due</label><select id="eDue"></select></div>
+      <div class="btnrow"><button class="btn" id="eDone">Mark done</button><button class="btn dark" id="eSave">Save</button></div>
     </div>
   </div>
 
@@ -315,7 +381,7 @@ const CONFIG = {
   SHOW_QUOTE: true,     // Daily quote in the sideways view
   VIEW: 'timeline',     // 'timeline' (day by day) or 'week'
   HIDDEN_CALS: [],      // Calendars you've hidden from the ☰ menu
-  DATA_REFRESH_MIN: 10, // How often to pull calendar/tasks/weather
+  DATA_REFRESH_MIN: 5,  // How often to pull calendar/tasks/weather (keeps Google Tasks in sync)
   STALE_MIN: 60,        // Warn if data is older than this
   FULL_REFRESH_MIN: 60  // How often to flash the screen to clear ghosting
 };
@@ -792,45 +858,270 @@ function renderTodos() {
   fitTodos();
 }
 
-// Hide to-dos that would be cut off instead of showing half a line
-function fitTodos() {
-  const box = $('todos'), bottom = box.getBoundingClientRect().bottom;
-  box.querySelectorAll('.todo').forEach(el => { el.style.visibility = ''; });
-  box.querySelectorAll('.todo').forEach(el => {
-    if (el.getBoundingClientRect().bottom > bottom + 1) el.style.visibility = 'hidden';
-  });
-}
+// The list scrolls now, so nothing needs hiding (kept so older calls still work)
+function fitTodos() {}
 
+const findTask = id => state.tasks.find(t => t.id === id) || {};
+
+// Tap the box to check it off; tap the words to edit
 $('todos').addEventListener('click', e => {
   const row = e.target.closest('.todo');
   if (!row || row.classList.contains('done')) return;
-  row.classList.add('done');
-  const id = row.dataset.id, task = state.tasks.find(t => t.id === id) || {};
+  lastTouch = Date.now();
+  if (e.target.closest('.box')) return completeTask(row.dataset.id, row);
+  openEdit(row.dataset.id);
+});
+
+function completeTask(id, row) {
+  const task = findTask(id);
+  if (row) row.classList.add('done');
   setTimeout(() => {
     state.tasks = state.tasks.filter(t => t.id !== id);
     renderTodos();
-    post({ action: 'complete', id, listId: task.listId });
-  }, 800);
-});
+    if (!String(id).startsWith('tmp')) post({ action: 'complete', id, listId: task.listId });
+  }, row ? 800 : 0);
+}
 
-$('plus').addEventListener('click', () => {
-  const f = $('addForm');
-  f.classList.toggle('open');
-  if (f.classList.contains('open')) $('newTask').focus();
-  fitTodos();
-});
+// ---------- Dates for due dates (Google Tasks stores date only) ----------
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const fromYmd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const taskDue = t => { if (!t.due) return ''; const d = new Date(t.due); return ymd(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())); };
+function dueLabel(s) {
+  const diff = Math.round((fromYmd(s) - startOfDay(new Date())) / 864e5), d = fromYmd(s);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  if (diff > 1 && diff < 7) return DOW[d.getDay()];
+  return DOW[d.getDay()].slice(0, 3) + ' ' + MON3[d.getMonth()] + ' ' + d.getDate();
+}
+function dueOptions(sel) {
+  const t = startOfDay(new Date()), opts = [['', 'No date']];
+  for (let i = 0; i < 7; i++) { const v = ymd(addDays(t, i)); opts.push([v, dueLabel(v)]); }
+  if (sel && !opts.some(o => o[0] === sel)) opts.push([sel, dueLabel(sel)]);
+  return opts.map(([v, l]) => '<option value="' + v + '"' + (v === (sel || '') ? ' selected' : '') + '>' + esc(l) + '</option>').join('');
+}
 
-$('addForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const title = $('newTask').value.trim();
-  if (!title) return;
-  $('newTask').value = '';
-  $('newTask').blur();
-  $('addForm').classList.remove('open');
-  state.tasks.push({ id: 'tmp' + Date.now(), title, due: null });
+// ---------- Edit an existing to-do ----------
+let editId = null;
+function openEdit(id) {
+  const t = findTask(id);
+  if (!t.id) return;
+  editId = id;
+  $('eTitle').value = t.title;
+  $('eDue').innerHTML = dueOptions(taskDue(t));
+  $('edit').hidden = false;
+}
+$('eClose').addEventListener('click', () => closeSheet('edit'));
+$('edit').addEventListener('click', e => { if (e.target.id === 'edit') closeSheet('edit'); });
+$('eDone').addEventListener('click', () => { const id = editId; closeSheet('edit'); completeTask(id); });
+$('eSave').addEventListener('click', () => {
+  const t = findTask(editId), title = $('eTitle').value.trim(), due = $('eDue').value;
+  closeSheet('edit');
+  if (!t.id || !title) return;
+  t.title = title; t.due = due ? due + 'T00:00:00.000Z' : null;
   renderTodos();
-  post({ action: 'add', title });
+  if (!String(t.id).startsWith('tmp')) post({ action: 'update', id: t.id, listId: t.listId, title, due: due || null });
 });
+
+// ---------- Recording (plain WAV, which Gemini reads directly) ----------
+let rec = null;
+async function startRecording() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('nomic');
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AC();
+  const srcNode = ctx.createMediaStreamSource(stream);
+  const proc = ctx.createScriptProcessor(4096, 1, 1);
+  const chunks = [];
+  proc.onaudioprocess = e => chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+  srcNode.connect(proc); proc.connect(ctx.destination);
+  rec = { stream, ctx, srcNode, proc, chunks, rate: ctx.sampleRate, t0: Date.now() };
+}
+function stopRecording(keep) {
+  if (!rec) return null;
+  const r = rec; rec = null;
+  try { r.proc.disconnect(); r.srcNode.disconnect(); } catch (e) {}
+  r.stream.getTracks().forEach(t => t.stop());
+  try { r.ctx.close(); } catch (e) {}
+  if (!keep) return null;
+  // Join, downsample to 16 kHz mono, 16-bit PCM WAV
+  const len = r.chunks.reduce((a, c) => a + c.length, 0);
+  const all = new Float32Array(len); let o = 0;
+  r.chunks.forEach(c => { all.set(c, o); o += c.length; });
+  const out = 16000, ratio = r.rate / out, n = Math.floor(len / ratio);
+  const buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+  const str = (p, t) => { for (let i = 0; i < t.length; i++) v.setUint8(p + i, t.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, out, true);
+  v.setUint32(28, out * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) {
+    const a = Math.floor(i * ratio), b = Math.min(len, Math.floor((i + 1) * ratio));
+    let sum = 0; for (let k = a; k < b; k++) sum += all[k];
+    const x = Math.max(-1, Math.min(1, sum / Math.max(1, b - a)));
+    v.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7fff, true);
+  }
+  const bytes = new Uint8Array(buf); let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return { audio: btoa(bin), mime: 'audio/wav', secs: (Date.now() - r.t0) / 1000 };
+}
+
+// ---------- Simple backup splitter (used if the AI can't be reached) ----------
+function simpleParse(text) {
+  const t = startOfDay(new Date());
+  const dayWord = s => {
+    const m = s.match(/\b(today|tonight|tomorrow|(?:on |by |this |next )?(sunday|monday|tuesday|wednesday|thursday|friday|saturday))\b/i);
+    if (!m) return [s, null];
+    const w = m[1].toLowerCase();
+    let d = null;
+    if (w === 'today' || w === 'tonight') d = t;
+    else if (w === 'tomorrow') d = addDays(t, 1);
+    else { const want = DOW.map(x => x.toLowerCase()).indexOf(m[2].toLowerCase()); let k = (want - t.getDay() + 7) % 7 || 7; d = addDays(t, k); }
+    return [s.replace(m[0], '').replace(/\s{2,}/g, ' ').trim(), ymd(d)];
+  };
+  return text.split(/\n|;|,|\.\s|\b(?:and then|then|also)\b/i).map(x => x && x.trim()).filter(Boolean)
+    .map(x => x.replace(/^(and |um,? |okay,? |so |i need to |remind me to |don'?t forget to )+/i, ''))
+    .map(x => { const [title, due] = dayWord(x); return { title: title.charAt(0).toUpperCase() + title.slice(1), due }; })
+    .filter(x => x.title);
+}
+
+async function callApi(payload) {
+  const body = Object.assign({ key: KEY }, payload);
+  const res = await fetch(API, { method: 'POST', body: JSON.stringify(body) });
+  return res.json();
+}
+
+// ---------- Capture sheet: talk or type, review, then add ----------
+let capItems = [], capTimer = null, capBusy = false;
+const MIC_SVG = $('mic').innerHTML;
+
+function openCap() { $('cap').hidden = false; lastTouch = Date.now(); }
+function closeCap() {
+  stopRecording(false); clearInterval(capTimer); capBusy = false;
+  closeSheet('cap');
+}
+$('capClose').addEventListener('click', closeCap);
+
+$('mic').addEventListener('click', () => { capItems = []; openCap(); listen(); });
+$('plus').addEventListener('click', () => { capItems = []; openCap(); showType(); });
+
+async function listen() {
+  $('capTitle').textContent = capItems.length ? 'Add more' : 'New to-dos';
+  $('capBody').innerHTML = '<div class="thinking">Getting the mic…</div>';
+  try {
+    await startRecording();
+  } catch (e) {
+    return showType('I couldn’t use the mic. In Fully Kiosk, turn on Settings → Web Content Settings → Enable Microphone Access ' +
+      '(and allow the mic for Fully in Android). You can type below for now, or use the mic on your keyboard.');
+  }
+  $('capBody').innerHTML = '<div class="listen"><button class="bigmic" id="stopRec" aria-label="Done talking">' +
+    '<svg viewBox="0 0 24 24" fill="#fff"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>' +
+    '<p>Listening… say your to-dos</p><small id="recTime">0:00 · tap the square when you’re done</small></div>' +
+    '<div class="btnrow"><button class="btn ghost" id="toType">Type instead</button><button class="btn dark" id="stopRec2">Done</button></div>';
+  const t0 = Date.now();
+  clearInterval(capTimer);
+  capTimer = setInterval(() => {
+    const s = Math.floor((Date.now() - t0) / 1000);
+    const el = $('recTime'); if (el) el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') + ' · tap the square when you’re done';
+    if (s >= 90) finishListening();
+  }, 1000);
+  $('stopRec').onclick = finishListening;
+  $('stopRec2').onclick = finishListening;
+  $('toType').onclick = () => { stopRecording(false); clearInterval(capTimer); showType(); };
+}
+
+async function finishListening() {
+  clearInterval(capTimer);
+  const clip = stopRecording(true);
+  if (!clip || clip.secs < 0.8) return showReview();
+  await sortOut({ audio: clip.audio, mime: clip.mime });
+}
+
+function showType(msg) {
+  $('capTitle').textContent = capItems.length ? 'Add more' : 'New to-dos';
+  $('capBody').innerHTML = (msg ? '<div class="note">' + esc(msg) + '</div>' : '') +
+    '<textarea class="tx" id="txIn" placeholder="Type or dictate a list, like: take out the trash and cardboard and call my mom tomorrow"></textarea>' +
+    '<div class="hint">I’ll split it into separate to-dos and catch due dates. You can fix anything before it’s added.</div>' +
+    '<div class="btnrow"><button class="btn ghost" id="toTalk">Talk instead</button><button class="btn dark" id="txGo">Next</button></div>';
+  $('txIn').focus();
+  $('toTalk').onclick = listen;
+  $('txGo').onclick = () => {
+    const text = $('txIn').value.trim();
+    if (!text) return capItems.length ? showReview() : closeCap();
+    sortOut({ text });
+  };
+}
+
+async function sortOut(input) {
+  if (capBusy) return;
+  capBusy = true;
+  $('capBody').innerHTML = '<div class="thinking">Sorting that out…</div>';
+  let res = null, note = '';
+  if (DEMO) res = input.text ? { items: simpleParse(input.text), transcript: input.text } : { items: [], transcript: '' };
+  else {
+    try { res = await callApi(Object.assign({ action: 'parse' }, input)); } catch (e) { res = { error: 'offline' }; }
+  }
+  capBusy = false;
+  if ($('cap').hidden) return;
+  if (!res || res.error) {
+    if (!input.text) {
+      return showType(res && res.error === 'no_ai_key'
+        ? 'Voice needs your Gemini key in the calendar script (Script Properties → GEMINI_KEY). You can type for now.'
+        : 'I couldn’t make that out (or couldn’t reach Google). Try again, or type it below.');
+    }
+    note = res && res.error === 'no_ai_key' ? 'Split without AI (no Gemini key yet), so double-check these.' : 'Couldn’t reach the AI, so I split it simply. Double-check these.';
+    res = { items: simpleParse(input.text), transcript: input.text };
+  }
+  capItems = capItems.concat(res.items || []);
+  showReview(res.transcript, note);
+}
+
+function showReview(heard, note) {
+  $('capTitle').textContent = capItems.length ? 'Look right?' : 'Nothing caught';
+  const rows = capItems.map((it, i) =>
+    '<div class="item" data-i="' + i + '"><input value="' + esc(it.title) + '" maxlength="200">' +
+    '<select>' + dueOptions(it.due) + '</select><button class="x" aria-label="Remove">×</button></div>').join('');
+  $('capBody').innerHTML = (note ? '<div class="note">' + esc(note) + '</div>' : '') +
+    (heard ? '<div class="heard">“' + esc(heard) + '”</div>' : '') +
+    (capItems.length ? '' : '<div class="hint">I didn’t catch any to-dos. Try again or add one by hand.</div>') +
+    '<div class="items" id="capItems">' + rows + '</div>' +
+    '<button class="addline" id="addLine">+ Add a line</button>' +
+    '<div class="btnrow"><button class="btn" id="more">' + MIC_SVG.replace('<svg ', '<svg style="width:1rem;height:1rem;vertical-align:-.15rem;margin-right:.3rem" ') + 'Add more</button>' +
+    '<button class="btn dark" id="saveAll"' + (capItems.length ? '' : ' disabled') + '>' + addLabel() + '</button></div>';
+  $('capItems').oninput = e => {
+    const row = e.target.closest('.item'); if (!row) return;
+    const it = capItems[+row.dataset.i];
+    if (e.target.tagName === 'INPUT') it.title = e.target.value;
+    $('saveAll').textContent = addLabel(); $('saveAll').disabled = !capItems.some(x => x.title.trim());
+  };
+  $('capItems').onchange = e => {
+    const row = e.target.closest('.item'); if (!row) return;
+    if (e.target.tagName === 'SELECT') capItems[+row.dataset.i].due = e.target.value || null;
+  };
+  $('capItems').onclick = e => {
+    if (!e.target.closest('.x')) return;
+    capItems.splice(+e.target.closest('.item').dataset.i, 1);
+    showReview(heard);
+  };
+  $('addLine').onclick = () => {
+    capItems.push({ title: '', due: null }); showReview(heard);
+    const ins = $('capItems').querySelectorAll('input'); ins[ins.length - 1].focus();
+  };
+  $('more').onclick = listen;
+  $('saveAll').onclick = saveAll;
+}
+function addLabel() {
+  const n = capItems.filter(x => x.title.trim()).length;
+  return n === 1 ? 'Add 1 to-do' : 'Add ' + n + ' to-dos';
+}
+
+function saveAll() {
+  const items = capItems.map(x => ({ title: x.title.trim(), due: x.due || null })).filter(x => x.title);
+  capItems = [];
+  closeCap();
+  if (!items.length) return;
+  items.forEach((it, i) => state.tasks.unshift({ id: 'tmp' + Date.now() + i, title: it.title, due: it.due ? it.due + 'T00:00:00.000Z' : null }));
+  renderTodos();
+  post({ action: 'addMany', items });
+}
 
 // ---------- Swiping between days + tapping events ----------
 function shift(dir) {
@@ -871,7 +1162,7 @@ function isNight() {
 }
 function renderNight() {
   const el = $('night'), was = !el.hidden;
-  const on = isNight() && Date.now() > peekUntil && $('menu').hidden && $('detail').hidden;
+  const on = isNight() && Date.now() > peekUntil && $('menu').hidden && $('detail').hidden && $('cap').hidden && $('edit').hidden;
   el.hidden = !on;
   if (on !== was) fullRefresh();
   if (!on) return;
@@ -929,6 +1220,10 @@ const SAVED_KEYS = ['VIEW', 'HIDDEN_CALS', 'DAYS_PORTRAIT', 'DAYS_LANDSCAPE', 'D
 
 function applySettings() {
   document.documentElement.style.setProperty('--scale', CONFIG.SCALE);
+  // Keep the sideways header from growing past 'Large' so the to-do list keeps its room
+  document.documentElement.style.setProperty('--hdr', Math.min(1, 1.15 / (CONFIG.SCALE || 1)));
+  document.documentElement.style.setProperty('--todo', Math.min(1, 1.3 / (CONFIG.SCALE || 1)));
+  document.body.classList.toggle('big', (CONFIG.SCALE || 1) >= 1.3);
   document.body.classList.toggle('no-todo', !CONFIG.SHOW_TODOS);
   renderQuote(); renderCalendar(); fitTodos();
 }
